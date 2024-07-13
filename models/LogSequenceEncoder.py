@@ -26,9 +26,9 @@ class LogSequenceEncoder(nn.Module):
         # Pooling layer
         self.pooling = nn.AdaptiveAvgPool1d(1)
 
-    def forward(self, log_messages):
+    def forward(self, logs):
         # Encode each log message using Single Log Encoder
-        log_representations = [self.single_log_encoder(log) for log in log_messages]
+        log_representations = [self.single_log_encoder(log) for log in logs]
         
         # Stack log representations to form a sequence
         log_representations = torch.stack(log_representations).permute(1, 0, 2)  # Shape: (sequence_length, batch_size, embedding_dim)
@@ -45,17 +45,23 @@ class LogSequenceEncoder(nn.Module):
         
         return pooled_output
 
+    def tokenize(self, log_messages, device):
+        tokenized = [self.single_log_encoder.tokenize(log) for log in log_messages]
+        return [token.to(device) for token in tokenized]
 
 if __name__ == "__main__":
     embedding_dim = 768  # BERT base model dimension
     transformer_layers = 2
     n_heads = 12
     dropout = 0.1
-    
-    log_sequence_encoder = LogSequenceEncoder(embedding_dim, transformer_layers, n_heads, dropout)
+            
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    log_sequence_encoder = LogSequenceEncoder(embedding_dim, transformer_layers, n_heads, dropout).to(device)
     dataset = load_dataset("loghub/Linux/Linux_2k.log")
     results, template_miner = parse_dataset(dataset)
     log_messages = [result["template_mined"] for result in results]
-    log_sequence_representation = log_sequence_encoder(log_messages)
-    
+    tokens = log_sequence_encoder.tokenize(log_messages, device)
+    # log_messages = torch.tensor(log_messages).to(device)
+    log_sequence_representation = log_sequence_encoder(tokens)
+        
     print(log_sequence_representation.shape)  # Should output (batch_size, embedding_dim)

@@ -29,9 +29,9 @@ class SingleLogEncoder(nn.Module):
         # Dimension of the BERT embeddings
         self.embedding_dim = embedding_dim
 
-    def forward(self, log_message):
+    def forward(self, tokens):
         # Tokenize the log message
-        tokens = self.tokenizer(log_message, return_tensors='pt', truncation=True, padding=True)
+        # tokens = self.tokenizer(log_message, return_tensors='pt', truncation=True, padding=True)
         
         # Get BERT embeddings
         with torch.no_grad():
@@ -56,15 +56,23 @@ class SingleLogEncoder(nn.Module):
         
         return pooled_output
 
+    def tokenize(self, log_message):
+        return self.tokenizer(log_message, return_tensors='pt', truncation=True, padding=True)
+
+
 def test_single_log_encoder():
     embedding_dim = 768  # BERT base model dimension
     transformer_layers = 2
     n_heads = 12
     dropout = 0.1
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    log_encoder = SingleLogEncoder(embedding_dim, transformer_layers, n_heads, dropout)
+    log_encoder = SingleLogEncoder(embedding_dim, transformer_layers, n_heads, dropout).to(device)
     log_message = "Received block blk_-2856928563366064757 of size 67108864 from /10.251.42.9"
-    log_representation = log_encoder(log_message)
+    tokens = log_encoder.tokenize(log_message)
+    tokens = tokens.to(device)
+
+    log_representation = log_encoder(tokens)
 
     print(log_representation.shape)  # Should output (batch_size, embedding_dim)
 
