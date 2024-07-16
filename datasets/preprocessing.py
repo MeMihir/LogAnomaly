@@ -49,6 +49,11 @@ def parse_dataset(dataset, batch_size=1000, line_count=0, batch_start_time=0):
         result = template_miner.add_log_message(line)
         params = template_miner.extract_parameters(
             result["template_mined"], line, exact_matching=True)
+        
+        if params is None:
+            print("Parameters extraction failed.")
+            params = []
+            
         result["parameters"] = params
         results.append(result)
         
