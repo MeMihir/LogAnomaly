@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from transformers import BertTokenizer, BertModel
 from models import SingleLogEncoder
-from preprocessing import parse_dataset, load_dataset
+from datasets.preprocessing import parse_dataset, load_dataset
 
 # Similar to SingleLogEncoder, we will use BERT for word embeddings
 class SingleParaEncoder(nn.Module):

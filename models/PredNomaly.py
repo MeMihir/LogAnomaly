@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from models.SingleLogEncoder import SingleLogEncoder
 from models.ParameterEncoder import SingleParaEncoder
-from preprocessing import parse_dataset, load_dataset
+from datasets.preprocessing import parse_dataset, load_dataset
 
 class LogAnomalyDetector(nn.Module):
     def __init__(self, embedding_dim=768, transformer_layers=2, n_heads=12, dropout=0.1):
@@ -75,3 +75,5 @@ def test_log_anomaly_detector():
     dataset = load_dataset("loghub/Linux/Linux_2k.log")
     results, log_messages = parse_dataset(dataset)
     log_template_tokens, para_tokens = log_anomaly_detector.tokenize(results)
+    output = log_anomaly_detector(log_template_tokens, para_tokens)
+    print(output.shape)

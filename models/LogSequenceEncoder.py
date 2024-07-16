@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from models import SingleLogEncoder
-from preprocessing import parse_dataset, load_dataset
+from datasets.preprocessing import parse_dataset, load_dataset
 
 class LogSequenceEncoder(nn.Module):
     def __init__(self, embedding_dim=768, transformer_layers=2, n_heads=12, dropout=0.1):
